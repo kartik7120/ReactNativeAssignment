@@ -8,10 +8,12 @@ import { useEffect, useState } from 'react';
 import { View, type ViewProps, Text } from 'react-native';
 import { Link, useNavigation } from 'expo-router';
 
-interface Pizza {
+export interface Pizza {
   id: number;
   name: string;
   price: number;
+  topping: string[];
+  rank: number;
 }
 
 export default function HomeScreen() {
@@ -58,7 +60,10 @@ export default function HomeScreen() {
                 <Link href={{
                   pathname: `/pizza/${pizza.id}`,
                   params: {
-                    pizzaName: pizza.name,
+                    name: pizza.name,
+                    toppings: JSON.stringify(pizza.topping),
+                    price: pizza.price,
+                    rank: pizza.rank,
                   }
                 }} asChild>
                   <Pressable style={
