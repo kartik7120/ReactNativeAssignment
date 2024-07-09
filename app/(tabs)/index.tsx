@@ -1,11 +1,38 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import { Image, StyleSheet, Platform, Button, Pressable, TouchableOpacity } from 'react-native';
 
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { useEffect, useState } from 'react';
+import { View, type ViewProps, Text } from 'react-native';
+import { Link, useNavigation } from 'expo-router';
+
+interface Pizza {
+  id: number;
+  name: string;
+  price: number;
+}
 
 export default function HomeScreen() {
+
+  const [pizzas, setPizzas] = useState<Pizza[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [cartItems, setCartItems] = useState([]);
+
+  useEffect(() => {
+    setIsLoading(true);
+    fetch(
+      "https://private-anon-b26f96742a-pizzaapp.apiary-mock.com/restaurants/1/menu?category=Pizza&orderBy=rank"
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        setPizzas(data);
+        setIsLoading(false);
+      })
+      .catch((error) => console.error("Error fetching pizzas:", error));
+  }, []);
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -15,37 +42,47 @@ export default function HomeScreen() {
           style={styles.reactLogo}
         />
       }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
+      <Text style={{ fontSize: 40, fontWeight: "bold", color: "white" }}>Pizza Listing</Text>
+      {isLoading ? (
+        <Text style={{ fontSize: 20, fontWeight: "bold", color: "white" }}>Loading pizzas...</Text>
+      ) : (
+        <View style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 20,
+        }}>
+          {pizzas.map((pizza) => (
+            <View key={pizza.id}>
+              <Text style={{ fontSize: 25, fontWeight: "bold", color: "white" }}>{pizza.name}</Text>
+              <TouchableOpacity>
+                <Link href={{
+                  pathname: `/pizza/${pizza.id}`,
+                  params: {
+                    pizzaName: pizza.name,
+                  }
+                }} asChild>
+                  <Pressable style={
+                    {
+                      backgroundColor: "blue",
+                      padding: 10,
+                      borderRadius: 5,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }
+                  }>
+                    <Text style={{ fontSize: 15, fontWeight: "bold", color: "white" }}>View Details</Text>
+                  </Pressable>
+                </Link>
+              </TouchableOpacity>
+              <Button
+                title="Add to Cart"
+              // onPress={() => handleAddToCart(pizza)}
+              />
+            </View>
+          ))}
+        </View>
+      )}
     </ParallaxScrollView>
   );
 }
