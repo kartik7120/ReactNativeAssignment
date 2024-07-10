@@ -1,5 +1,4 @@
 import { Image, StyleSheet, Platform, Button, Pressable, TouchableOpacity } from 'react-native';
-
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
@@ -7,20 +6,23 @@ import { ThemedView } from '@/components/ThemedView';
 import { useEffect, useState } from 'react';
 import { View, type ViewProps, Text } from 'react-native';
 import { Link, useNavigation } from 'expo-router';
+import { CartItem, useCart } from '@/hooks/useCart';
+import { useAppDispatch, useAppSelector } from "../../redux/hooks"
+import { addToCart, initialStateAsync, selectCart, } from "../../redux/slices/cartSlice"
 
 export interface Pizza {
   id: number;
   name: string;
   price: number;
   topping: string[];
-  rank: number;
 }
 
 export default function HomeScreen() {
 
   const [pizzas, setPizzas] = useState<Pizza[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [cartItems, setCartItems] = useState([]);
+  const dispatch = useAppDispatch();
+  const { addToCart: AsyncAddToCart } = useCart({ cartItems: useAppSelector(selectCart) });
 
   useEffect(() => {
     setIsLoading(true);
@@ -33,7 +35,22 @@ export default function HomeScreen() {
         setIsLoading(false);
       })
       .catch((error) => console.error("Error fetching pizzas:", error));
+    dispatch(initialStateAsync());
   }, []);
+
+  async function handleAddPToCart(pizza: Pizza) {
+
+    const cartItem: CartItem = {
+      id: pizza.id,
+      name: pizza.name,
+      price: pizza.price,
+      topping: pizza.topping,
+      quantity: 1,
+    };
+
+    dispatch(addToCart(cartItem));
+    await AsyncAddToCart(cartItem);
+  }
 
   return (
     <ParallaxScrollView
@@ -63,7 +80,6 @@ export default function HomeScreen() {
                     name: pizza.name,
                     toppings: JSON.stringify(pizza.topping),
                     price: pizza.price,
-                    rank: pizza.rank,
                   }
                 }} asChild>
                   <Pressable style={
@@ -82,7 +98,7 @@ export default function HomeScreen() {
               </TouchableOpacity>
               <Button
                 title="Add to Cart"
-              // onPress={() => handleAddToCart(pizza)}
+                onPress={() => handleAddPToCart(pizza)}
               />
             </View>
           ))}
