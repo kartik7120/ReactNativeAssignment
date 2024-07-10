@@ -15,18 +15,17 @@ export default function PizzaComponent() {
         })
     }, [id])
 
-    console.log(toppings)
-
     return (
         <SafeAreaView style={{ height: "auto" }}>
             <View style={{ padding: 20 }}>
                 <Text style={{ fontSize: 30, color: "white" }}>{name}</Text>
                 <View style={{ flexDirection: "row", gap: 5 }}>
                     <Text style={{ fontSize: 20, color: "white" }}>Toppings: </Text>
-                    <View style={{ flexDirection: "row", gap: 10 }}>
+                    <View style={{ flexDirection: "row", gap: 5 }}>
                         {toppings && typeof toppings === 'string' && JSON.parse(toppings).map((topping: string, index: number) => (
                             <Text key={index} style={{ fontSize: 20, color: "white" }}>{topping + `${index < topping.length - 1 ? "," : ""}`}</Text>
                         ))}
+                        {toppings === undefined && <Text style={{ fontSize: 20, color: "white" }}>N/A</Text>}
                     </View>
                 </View>
                 <Text style={{ color: "white", fontSize: 20 }}>Price : {"$" + price}</Text>
