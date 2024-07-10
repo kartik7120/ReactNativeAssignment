@@ -57,7 +57,7 @@ export default function HomeScreen() {
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
       headerImage={
-        <Ionicons size={230} name="restaurant-outline"
+        <Ionicons size={230} name="restaurant-outline" color="grey"
           style={styles.reactLogo}
         />
       }>
